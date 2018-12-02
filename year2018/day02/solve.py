@@ -1,4 +1,6 @@
 from collections import Counter
+from functools import lru_cache
+from itertools import combinations
 
 from common import read_lines
 
@@ -17,3 +19,17 @@ for item in data:
         threes += 1
 
 print(twos, threes, twos * threes)
+
+
+@lru_cache(len(data))
+def positions(item):
+    return set(enumerate(item))
+
+
+for a, b in combinations(data, 2):
+    diff = positions(a) ^ positions(b)
+
+    if len(diff) == 2:
+        i = next(iter(diff))[0]
+        print(a, b, i, a[:i] + a[i + 1 :])
+        break

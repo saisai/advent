@@ -34,7 +34,15 @@ class Claim:
             for y in self.y_range:
                 yield x, y
 
+    def intact(self, point_counts):
+        return all(point_counts[point] == 1 for point in self)
+
 
 data = [Claim.from_line(line) for line in read_lines()]
 point_counts = Counter([point for claim in data for point in claim])
 print(sum(count > 1 for count in point_counts.values()))
+
+for claim in data:
+    if claim.intact(point_counts):
+        print(claim)
+        break

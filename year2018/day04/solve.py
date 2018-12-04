@@ -34,5 +34,15 @@ def strat_one(minutes):
     print(id, minute, id * minute)
 
 
+def strat_two(minutes):
+    def extract():
+        for id, counts in minutes.items():
+            yield id, counts.most_common(1)[0]
+
+    id, (minute, count) = max(extract(), key=lambda x: x[1][1])
+    print(id, minute, count, id * minute)
+
+
 data = get_minutes(sorted(read_lines()))
 strat_one(data)
+strat_two(data)

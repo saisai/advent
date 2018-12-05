@@ -1,67 +1,28 @@
-from multiprocessing import Pool
-
 from common import read_line
 
 
-def find_mid(data, swapped):
-    i = 0
+def react(line):
+    out = []
 
-    while i < len(data) - 1:
-        if data[i] == swapped[i + 1]:
-            return i
+    for c in line:
+        if out and out[-1] == c.swapcase():
+            out.pop()
+        else:
+            out.append(c)
 
-        i += 1
-
-
-def find_bounds(data, swapped, mid):
-    left = mid
-    right = mid + 1
-    size = len(data)
-
-    while True:
-        nl = left - 1
-        nr = right + 1
-
-        if nl < 0 or nr == size:
-            break
-
-        if data[nl] != swapped[nr]:
-            break
-
-        left = nl
-        right = nr
-
-    return left, right + 1
+    return out
 
 
-def react(data):
-    data = bytearray(data, "ascii")
-    swapped = data.swapcase()
+def remove_react(line):
+    sizes = {}
 
-    while True:
-        mid = find_mid(data, swapped)
+    for c in set(line.lower()):
+        removed = line.replace(c, "").replace(c.upper(), "")
+        sizes[c] = len(react(removed))
 
-        if mid is None:
-            return data
-
-        left, right = find_bounds(data, swapped, mid)
-        del data[left:right]
-        del swapped[left:right]
+    return min(sizes.items(), key=lambda x: x[1])
 
 
-def remove_react_one(data, c):
-    removed = data.replace(c, "").replace(c.upper(), "")
-    size = len(react(removed))
-    return c, size
-
-
-def remove_react(data):
-    with Pool() as p:
-        results = p.starmap(remove_react_one, ((data, c) for c in set(data.lower())))
-
-    return min(results, key=lambda x: x[1])
-
-
-if __name__ == "__main__":
-    print(len(react(read_line())))
-    print(remove_react(read_line()))
+data = read_line()
+print(len(react(data)))
+print(remove_react(data))

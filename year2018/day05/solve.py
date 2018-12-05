@@ -1,6 +1,6 @@
-from common import read_line
+from multiprocessing import Pool
 
-raw = bytearray(read_line(), "ascii")
+from common import read_line
 
 
 def find_mid(data, swapped):
@@ -14,12 +14,24 @@ def find_mid(data, swapped):
 
 
 def find_bounds(data, swapped, mid):
-    size = 0
+    left = mid
+    right = mid + 1
+    size = len(data)
 
-    while mid > size and data[mid - size - 1] == swapped[mid + size + 2]:
-        size += 1
+    while True:
+        nl = left - 1
+        nr = right + 1
 
-    return mid - size, mid + size + 2
+        if nl < 0 or nr == size:
+            break
+
+        if data[nl] != swapped[nr]:
+            break
+
+        left = nl
+        right = nr
+
+    return left, right + 1
 
 
 def react(data):
@@ -37,4 +49,19 @@ def react(data):
         del swapped[left:right]
 
 
-print(len(react(read_line())))
+def remove_react_one(data, c):
+    removed = data.replace(c, "").replace(c.upper(), "")
+    size = len(react(removed))
+    return c, size
+
+
+def remove_react(data):
+    with Pool() as p:
+        results = p.starmap(remove_react_one, ((data, c) for c in set(data.lower())))
+
+    return min(results, key=lambda x: x[1])
+
+
+if __name__ == "__main__":
+    print(len(react(read_line())))
+    print(remove_react(read_line()))

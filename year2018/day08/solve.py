@@ -34,4 +34,37 @@ def sum_metadata(nodes):
     return sum(x for node in nodes.values() for x in node["metadata"])
 
 
-print(sum_metadata(build(read_line())))
+def node_values(nodes):
+    values = {
+        nid: sum(node["metadata"])
+        for nid, node in nodes.items()
+        if not node["children"]
+    }
+    todo = [0]
+
+    while todo:
+        nid = todo.pop()
+
+        if nid in values:
+            continue
+
+        node = nodes[nid]
+        need = [cid for cid in node["children"] if cid not in values]
+
+        if need:
+            todo.append(nid)
+            todo.extend(need)
+        else:
+            child_count = len(node["children"])
+            values[nid] = sum(
+                values[node["children"][i - 1]]
+                for i in node["metadata"]
+                if 0 < i <= child_count
+            )
+
+    return values
+
+
+nodes = build(read_line())
+print(sum_metadata(nodes))
+print(node_values(nodes)[0])

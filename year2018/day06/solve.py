@@ -1,28 +1,14 @@
 from collections import Counter
 from collections import deque
 
+from common import around
+from common import bounds
+from common import manhattan
 from common import read_lines
 
 
 def parse():
     return [(int(x), int(y)) for x, y in (line.split(", ", 1) for line in read_lines())]
-
-
-def bounds(coords):
-    xs = sorted(c[0] for c in coords)
-    ys = sorted(c[1] for c in coords)
-    return xs[0], ys[0], xs[-1], ys[-1]
-
-
-def around(x, y):
-    yield x, y - 1
-    yield x + 1, y
-    yield x, y + 1
-    yield x - 1, y
-
-
-def manhattan(x1, y1, x2, y2):
-    return abs(x1 - x2) + abs(y1 - y2)
 
 
 def flood(coords):

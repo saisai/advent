@@ -19,15 +19,28 @@ _extra = (False,) * 5
 
 def run(lines, steps=20):
     pots, notes = parse(lines)
+    score = 0
+    delta = 0
 
-    for _ in range(1, steps + 1):
+    for i in range(1, steps + 1):
         pots = tuple(
             notes.get(items, False)
             for items in windowed(chain(_extra, pots, _extra), 5)
         )
 
-    offset = 3 * steps
-    return sum(c * (i - offset) for i, c in enumerate(pots))
+        offset = 3 * i
+        new_score = sum(c * (i - offset) for i, c in enumerate(pots))
+        new_delta = new_score - score
+        score = new_score
+
+        if new_delta == delta:
+            score += (steps - i) * new_delta
+            break
+
+        delta = new_delta
+
+    return score
 
 
 print(run(read_lines("input.txt")))
+print(run(read_lines("input.txt"), 50_000_000_000))

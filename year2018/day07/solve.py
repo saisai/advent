@@ -1,6 +1,6 @@
+from bisect import insort_left
 from collections import defaultdict
 
-from bisect import insort_left
 from networkx import DiGraph
 from networkx import lexicographical_topological_sort
 

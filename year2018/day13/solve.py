@@ -2,30 +2,29 @@ from __future__ import annotations
 
 from itertools import cycle
 from typing import Generator
-from typing import Optional
 
 import attr
 
 from common import read_lines
 
-turn_order = ("l", None, "r")
+turn_order = ("l", "s", "r")
 turns = {
     "l": {"^": ("-", "<"), ">": ("|", "^"), "v": ("-", ">"), "<": ("|", "v")},
     "r": {"^": ("-", ">"), ">": ("|", "v"), "v": ("-", "<"), "<": ("|", "^")},
-    None: {"^": ("|", "^"), ">": ("-", ">"), "v": ("|", "v"), "<": ("-", "<")},
+    "s": {"^": ("|", "^"), ">": ("-", ">"), "v": ("|", "v"), "<": ("-", "<")},
 }
 
 
-@attr.s(auto_attribs=True)
+@attr.s(auto_attribs=True, cmp=False)
 class Cart:
     x: int
     y: int
     dir: str
-    crash: Optional["Cart"] = None
+    crash: bool = False
     turn: Generator[str] = attr.Factory(lambda: cycle(turn_order))
 
     def move(self, track, carts):
-        if self.crash is not None:
+        if self.crash:
             return
 
         coord = self.x, self.y
@@ -43,9 +42,8 @@ class Cart:
         coord = self.x, self.y
 
         if coord in carts:
-            other = carts[coord]
-            self.crash = other
-            carts[coord].crash = self
+            self.crash = True
+            carts.pop(coord).crash = True
         else:
             carts[coord] = self
 
@@ -86,15 +84,20 @@ def parse(lines):
 
 def run(lines):
     track, carts = parse(lines)
+    first_crash = False
 
-    while True:
+    while len(carts) > 1:
         order = sorted(carts.values(), key=lambda c: (c.y, c.x))
 
         for cart in order:
             cart.move(track, carts)
 
-            if cart.crash is not None:
-                return cart
+            if cart.crash:
+                if not first_crash:
+                    first_crash = True
+                    print(cart)
+
+    print(next(iter(carts.values())))
 
 
-print(run(read_lines("input.txt")))
+run(read_lines("input.txt"))
